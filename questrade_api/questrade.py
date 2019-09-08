@@ -10,6 +10,9 @@ CONFIG_PATH = os.path.join(os.path.abspath(
 
 
 class Questrade:
+    __remaining = None
+    __reset = None
+
     def __init__(self, **kwargs):
         if 'config' in kwargs:
             self.config = self.__read_config(kwargs['config'])
@@ -47,6 +50,9 @@ class Questrade:
         )
         try:
             r = urllib.request.urlopen(req)
+            h = r.getheaders()
+            self.__remaining = next( ( int( t[1] ) for t in h if t[0] == 'X-RateLimit-Remaining'), None )
+            self.__reset = next( ( int( t[1] ) for t in h if t[0] == 'X-RateLimit-Reset'), None )
             return json.loads(r.read().decode('utf-8'))
         except urllib.error.HTTPError as e:
             return json.loads(e.read().decode('utf-8'))
@@ -67,6 +73,10 @@ class Questrade:
             return json.loads(r.read().decode('utf-8'))
         except urllib.error.HTTPError as e:
             return json.loads(e.read().decode('utf-8'))
+
+    @property
+    def ratelimit(self):
+        return ( self.__remaining, self.__reset, )
 
     @property
     def __now(self):
