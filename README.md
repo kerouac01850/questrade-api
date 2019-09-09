@@ -33,6 +33,11 @@ Python3 Questrade API Wrapper
 q.time
 => {'time': '2018-11-16T09:22:27.090000-05:00'}
 ```
+### [Rate Limiting](https://www.questrade.com/api/documentation/rate-limiting)
+```
+q.ratelimit
+=> ( 100, 1300286940 )
+```
 
 ### [Accounts](https://www.questrade.com/api/documentation/rest-operations/account-calls/accounts)
 
