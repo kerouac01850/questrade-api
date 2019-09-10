@@ -10,9 +10,6 @@ CONFIG_PATH = os.path.join(os.path.abspath(
 
 
 class Questrade:
-    __remaining = None
-    __reset = None
-
     def __init__(self, **kwargs):
         if 'config' in kwargs:
             self.config = self.__read_config(kwargs['config'])
@@ -21,6 +18,9 @@ class Questrade:
 
         auth_kwargs = {x: y for x, y in kwargs.items() if x in
             ['token_path', 'refresh_token', 'storage_adaptor', 'logger']}
+
+        __remaining = None
+        __reset = None
 
         self.auth = Auth(**auth_kwargs, config=self.config)
 
