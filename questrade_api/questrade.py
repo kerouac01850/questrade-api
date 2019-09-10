@@ -20,7 +20,7 @@ class Questrade:
             self.config = self.__read_config(CONFIG_PATH)
 
         auth_kwargs = {x: y for x, y in kwargs.items() if x in
-                       ['token_path', 'refresh_token']}
+            ['token_path', 'refresh_token', 'storage_adaptor', 'logger']}
 
         self.auth = Auth(**auth_kwargs, config=self.config)
 
