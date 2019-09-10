@@ -17,10 +17,10 @@ class Auth:
             self.token_path = kwargs['token_path']
         else:
             self.token_path = TOKEN_PATH
-        if 'refresh_token' in kwargs:
-            self.__refresh_token(kwargs['refresh_token'])
         if 'storage_adaptor' in kwargs:
             ( self.read_adaptor, self.write_adaptor) = kwargs['storage_adaptor']
+        if 'refresh_token' in kwargs:
+            self.__refresh_token(kwargs['refresh_token'])
 
     def __logger(self, s):
         if hasattr(self, 'logger'):
