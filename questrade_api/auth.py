@@ -5,9 +5,10 @@ from urllib import request
 
 TOKEN_PATH = os.path.expanduser('~/.questrade.json')
 
-
 class Auth:
     def __init__(self, **kwargs):
+        if 'logger' in kwargs:
+            self.logger = kwargs['logger']
         if 'config' in kwargs:
             self.config = kwargs['config']
         else:
@@ -18,19 +19,39 @@ class Auth:
             self.token_path = TOKEN_PATH
         if 'refresh_token' in kwargs:
             self.__refresh_token(kwargs['refresh_token'])
+        if 'storage_adaptor' in kwargs:
+            ( self.read_adaptor, self.write_adaptor) = kwargs['storage_adaptor']
+
+    def __logger(self, s):
+        if hasattr(self, 'logger'):
+            self.logger(s)
 
     def __read_token(self):
         try:
-            with open(self.token_path) as f:
-                str = f.read()
-                return json.loads(str)
-        except IOError:
-            raise('No token provided and none found at {}'.format(TOKEN_PATH))
+            if hasattr( self, 'read_adaptor'):
+                s = self.read_adaptor( )
+                self.__logger( '__read_token::read_adaptor( ) = {}'.format( s ) )
+            else:
+                with open(self.token_path) as f:
+                    s = f.read()
+                self.__logger( '__read_token::default( ) = {}'.format( s ) )
+            return json.loads(s)
+        except:
+            raise RuntimeError('No token provided and none found at {}'.format(TOKEN_PATH))
 
     def __write_token(self, token):
-        with open(self.token_path, 'w') as f:
-            json.dump(token, f)
-        os.chmod(self.token_path, 0o600)
+        try:
+            s = json.dumps(token, indent=4, sort_keys=True)
+            if hasattr( self, 'write_adaptor'):
+                self.write_adaptor(s)
+                self.__logger( '__write_token::write_adaptor( ) = {}'.format( s ) )
+            else:
+                with open(self.token_path, 'w') as f:
+                    f.write(s)
+                os.chmod(self.token_path, 0o600)
+                self.__logger( '__write_token::default( ) = {}'.format( s ) )
+        except:
+            raise RuntimeError('Failed to cache token file.')
 
     def __refresh_token(self, token):
         req_time = int(time.time())
